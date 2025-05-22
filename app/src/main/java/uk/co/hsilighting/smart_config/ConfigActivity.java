@@ -24,7 +24,7 @@ public class ConfigActivity extends AppCompatActivity {
         webView.getSettings().setJavaScriptEnabled(true);
         // For Android 8.0 (API 26) and below
 
-// Allow all content
+        // Allow all content
         webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         // Get the URL passed from the previous activity

@@ -2,6 +2,7 @@ package uk.co.hsilighting.smart_config;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,8 +28,10 @@ import com.espressif.iot.esptouch2.provision.EspProvisioningRequest;
 import com.espressif.iot.esptouch2.provision.EspProvisioningResult;
 import com.espressif.iot.esptouch2.provision.TouchNetUtil;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProvisioningActivity extends AppCompatActivity {
     private static final String TAG = ProvisioningActivity.class.getSimpleName();
@@ -37,7 +40,7 @@ public class ProvisioningActivity extends AppCompatActivity {
     public static final String KEY_PROVISION_REQUEST = "provision_request";
     public static final String KEY_DEVICE_COUNT = "device_count";
 
-    private List<EspProvisioningResult> mStations;
+    private List<HSI_Provision_Result> mStations;
     private StationAdapter mStationAdapter;
 
     private EspProvisioner mProvisioner;
@@ -53,6 +56,8 @@ public class ProvisioningActivity extends AppCompatActivity {
     private long mTime;
 
     private int mWillProvisioningCount = -1;
+
+    private MdnsDiscovery mdnsDiscovery;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,6 +83,7 @@ public class ProvisioningActivity extends AppCompatActivity {
         mBinding.stopBtn.setOnClickListener(v -> {
             v.setEnabled(false);
             mProvisioner.stopProvisioning();
+            mdnsDiscovery.stopDiscovery();
         });
 
         mWifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
@@ -87,12 +93,24 @@ public class ProvisioningActivity extends AppCompatActivity {
                 mWifiFailed = true;
                 mBinding.messageView.setText(getString(R.string.esptouch2_provisioning_wifi_disconnect));
                 mProvisioner.stopProvisioning();
+                mdnsDiscovery.stopDiscovery();
             }
         };
         HSI_Smart_Config_App.getInstance().observeBroadcastForever(mBroadcastObserver);
 
         mTime = System.currentTimeMillis();
         mProvisioner.startProvisioning(request, new ProvisionListener());
+
+        mdnsDiscovery = new MdnsDiscovery();
+        mdnsDiscovery.startDiscovery(getApplicationContext(), new MdnsDiscoveryCallback() {
+            @Override
+            public void ServiceDiscovered(NsdServiceInfo serviceInfo) {
+                runOnUiThread(() -> {
+                    mStations.add(new HSI_Provision_Result(serviceInfo));
+                    mStationAdapter.notifyItemInserted(mStations.size() - 1);
+                });
+            }
+        });
     }
 
     @Override
@@ -101,6 +119,7 @@ public class ProvisioningActivity extends AppCompatActivity {
 
         HSI_Smart_Config_App.getInstance().removeBroadcastObserver(mBroadcastObserver);
         mProvisioner.stopProvisioning();
+        mdnsDiscovery.stopDiscovery();
     }
 
     @Override
@@ -119,6 +138,7 @@ public class ProvisioningActivity extends AppCompatActivity {
 
         mProvisioner.stopProvisioning();
         mProvisioner.close();
+        mdnsDiscovery.stopDiscovery();
     }
 
     private class StationHolder extends RecyclerView.ViewHolder {
@@ -166,14 +186,38 @@ public class ProvisioningActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull StationHolder holder, int position) {
-            EspProvisioningResult station = mStations.get(position);
+            HSI_Provision_Result station = mStations.get(position);
 
-            holder.bssid_text.setText(getString(R.string.esptouch2_provisioning_result_bssid, station.bssid));
-            holder.ip_text.setText(getString(R.string.esptouch2_provisioning_result_address,
-                    station.address.getHostAddress()));
-            holder.device_type_text.setText(getString(R.string.esptouch2_provisioning_result_device_type,
-                    "checking..."));
-            holder.device_IP = station.address.getHostAddress();
+            if(station.espProvisioningResult != null) {
+                holder.bssid_text.setText(getString(R.string.esptouch2_provisioning_result_bssid, station.espProvisioningResult.bssid));
+                holder.ip_text.setText(getString(R.string.esptouch2_provisioning_result_address,
+                        station.espProvisioningResult.address.getHostAddress()));
+                holder.device_type_text.setText(getString(R.string.esptouch2_provisioning_result_device_type,
+                        "checking..."));
+                holder.device_IP = station.espProvisioningResult.address.getHostAddress();
+            }
+
+            if(station.mdnsDiscoveryResult != null){
+                holder.bssid_text.setText(station.mdnsDiscoveryResult.getServiceName());
+                holder.ip_text.setText(getString(R.string.esptouch2_provisioning_result_address,
+                        station.mdnsDiscoveryResult.getHost()));
+
+                Map<String, byte[]> attributes = station.mdnsDiscoveryResult.getAttributes();
+                StringBuilder details = new StringBuilder();
+                if (attributes != null) {
+                    for (Map.Entry<String, byte[]> entry : attributes.entrySet()) {
+                        String key = entry.getKey();
+                        String value = new String(entry.getValue(), StandardCharsets.UTF_8);
+                        details.append(key).append(": ").append(value).append("\n");
+                        Log.i("mDNS", "TXT Record: " + key + " = " + value);
+                    }
+                } else {
+                    Log.i("mDNS", "No TXT records found");
+                }
+
+                holder.device_type_text.setText(details.toString());
+                holder.device_IP = station.mdnsDiscoveryResult.getHost().toString();
+            }
         }
 
         @Override
@@ -195,11 +239,12 @@ public class ProvisioningActivity extends AppCompatActivity {
             String host = result.address.getHostAddress();
             Log.d(TAG, "ProvisionListener onResponse: " + mac + " " + host);
             runOnUiThread(() -> {
-                mStations.add(result);
+                mStations.add(new HSI_Provision_Result(result));
                 mStationAdapter.notifyItemInserted(mStations.size() - 1);
 
                 if (mWillProvisioningCount > 0 && mStations.size() >= mWillProvisioningCount) {
                     mProvisioner.stopProvisioning();
+                    mdnsDiscovery.stopDiscovery();
                 }
             });
         }
@@ -222,6 +267,7 @@ public class ProvisioningActivity extends AppCompatActivity {
         public void onError(Exception e) {
             Log.w(TAG, "ProvisionListener onError: ", e);
             mProvisioner.stopProvisioning();
+            mdnsDiscovery.stopDiscovery();
             runOnUiThread(() -> {
                 String message = getString(R.string.esptouch2_provisioning_result_exception,
                         e.getLocalizedMessage());
