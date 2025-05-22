@@ -1,5 +1,6 @@
-package uk.co.hsilighting.smart_config.v2;
+package uk.co.hsilighting.smart_config;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,8 +20,6 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import uk.co.hsilighting.smart_config.HSI_Smart_Config_App;
-import uk.co.hsilighting.smart_config.R;
 import uk.co.hsilighting.smart_config.databinding.ActivityProvisionBinding;
 import com.espressif.iot.esptouch2.provision.EspProvisioner;
 import com.espressif.iot.esptouch2.provision.EspProvisioningListener;
@@ -30,8 +30,8 @@ import com.espressif.iot.esptouch2.provision.TouchNetUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EspProvisioningActivity extends AppCompatActivity {
-    private static final String TAG = EspProvisioningActivity.class.getSimpleName();
+public class ProvisioningActivity extends AppCompatActivity {
+    private static final String TAG = ProvisioningActivity.class.getSimpleName();
 
     public static final String KEY_PROVISION = "provision";
     public static final String KEY_PROVISION_REQUEST = "provision_request";
@@ -121,17 +121,36 @@ public class EspProvisioningActivity extends AppCompatActivity {
         mProvisioner.close();
     }
 
-    private static class StationHolder extends RecyclerView.ViewHolder {
-        TextView text1;
-        TextView text2;
+    private class StationHolder extends RecyclerView.ViewHolder {
+        TextView bssid_text;
+        TextView ip_text;
+        TextView device_type_text;
+
+        String device_IP;
 
         StationHolder(@NonNull View itemView) {
             super(itemView);
 
-            text1 = itemView.findViewById(android.R.id.text1);
-            text1.setTextColor(Color.BLACK);
-            text2 = itemView.findViewById(android.R.id.text2);
-            text2.setTextColor(Color.BLACK);
+            bssid_text = itemView.findViewById(R.id.bssid_text);
+            bssid_text.setTextColor(Color.BLACK);
+            ip_text = itemView.findViewById(R.id.ip_text);
+            ip_text.setTextColor(Color.BLACK);
+            device_type_text = itemView.findViewById(R.id.device_type_text);
+            device_type_text.setTextColor(Color.BLACK);
+
+            itemView.findViewById(R.id.config_button).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Create an Intent to start the WebViewActivity
+                    Intent intent = new Intent(ProvisioningActivity.this, ConfigActivity.class);
+
+                    // Put the URL as an extra
+                    intent.putExtra("IP", device_IP);
+
+                    // Start the activity
+                    ProvisioningActivity.this.startActivity(intent);
+                }
+            });
         }
     }
 
@@ -140,7 +159,7 @@ public class EspProvisioningActivity extends AppCompatActivity {
         @NonNull
         @Override
         public StationHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View itemView = LayoutInflater.from(getApplicationContext()).inflate(android.R.layout.simple_list_item_2,
+            View itemView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.provision_result_item,
                     parent, false);
             return new StationHolder(itemView);
         }
@@ -149,9 +168,12 @@ public class EspProvisioningActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull StationHolder holder, int position) {
             EspProvisioningResult station = mStations.get(position);
 
-            holder.text1.setText(getString(R.string.esptouch2_provisioning_result_bssid, station.bssid));
-            holder.text2.setText(getString(R.string.esptouch2_provisioning_result_address,
+            holder.bssid_text.setText(getString(R.string.esptouch2_provisioning_result_bssid, station.bssid));
+            holder.ip_text.setText(getString(R.string.esptouch2_provisioning_result_address,
                     station.address.getHostAddress()));
+            holder.device_type_text.setText(getString(R.string.esptouch2_provisioning_result_device_type,
+                    "checking..."));
+            holder.device_IP = station.address.getHostAddress();
         }
 
         @Override

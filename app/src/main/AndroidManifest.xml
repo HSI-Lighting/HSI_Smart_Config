@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true"
         android:name=".HSI_Smart_Config_App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
@@ -19,7 +21,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning,LockedOrientationActivity">
         <activity
-            android:name=".main.EspMainActivity"
+            android:name=".ConfigActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -29,17 +34,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="uk.co.hsilighting.smart_config.v1.EspTouchActivity"
-            android:exported="true"
-            android:label="@string/esptouch1_title"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="uk.co.hsilighting.smart_config.v2.EspTouch2Activity"
-            android:exported="true"
-            android:label="@string/esptouch2_title"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name="uk.co.hsilighting.smart_config.v2.EspProvisioningActivity"
+            android:name=".ProvisioningActivity"
             android:exported="false"
             android:label="@string/esptouch2_provisioning_title"
             android:screenOrientation="portrait" />
