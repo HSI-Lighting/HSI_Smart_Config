@@ -1,4 +1,4 @@
-package com.espressif.esptouch.android.v2;
+package uk.co.hsilighting.smart_config.v2;
 
 import android.graphics.Color;
 import android.net.wifi.WifiManager;
@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.espressif.esptouch.android.EspTouchApp;
-import com.espressif.esptouch.android.R;
-import com.espressif.esptouch.android.databinding.ActivityProvisionBinding;
+import uk.co.hsilighting.smart_config.HSI_Smart_Config_App;
+import uk.co.hsilighting.smart_config.R;
+import uk.co.hsilighting.smart_config.databinding.ActivityProvisionBinding;
 import com.espressif.iot.esptouch2.provision.EspProvisioner;
 import com.espressif.iot.esptouch2.provision.EspProvisioningListener;
 import com.espressif.iot.esptouch2.provision.EspProvisioningRequest;
@@ -89,7 +89,7 @@ public class EspProvisioningActivity extends AppCompatActivity {
                 mProvisioner.stopProvisioning();
             }
         };
-        EspTouchApp.getInstance().observeBroadcastForever(mBroadcastObserver);
+        HSI_Smart_Config_App.getInstance().observeBroadcastForever(mBroadcastObserver);
 
         mTime = System.currentTimeMillis();
         mProvisioner.startProvisioning(request, new ProvisionListener());
@@ -99,7 +99,7 @@ public class EspProvisioningActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        EspTouchApp.getInstance().removeBroadcastObserver(mBroadcastObserver);
+        HSI_Smart_Config_App.getInstance().removeBroadcastObserver(mBroadcastObserver);
         mProvisioner.stopProvisioning();
     }
 

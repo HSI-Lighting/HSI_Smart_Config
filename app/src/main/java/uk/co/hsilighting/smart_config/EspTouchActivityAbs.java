@@ -1,4 +1,4 @@
-package com.espressif.esptouch.android;
+package uk.co.hsilighting.smart_config;
 
 import android.Manifest;
 import android.content.pm.PackageInfo;
@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.location.LocationManagerCompat;
 
+import uk.co.hsilighting.smart_config.R;
 import com.espressif.iot.esptouch2.provision.TouchNetUtil;
 
 import java.net.InetAddress;

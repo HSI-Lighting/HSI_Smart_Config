@@ -1,4 +1,4 @@
-package com.espressif.esptouch.android.v1;
+package uk.co.hsilighting.smart_config.v1;
 
 import android.Manifest;
 import android.content.Context;
@@ -14,10 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 
-import com.espressif.esptouch.android.EspTouchActivityAbs;
-import com.espressif.esptouch.android.EspTouchApp;
-import com.espressif.esptouch.android.R;
-import com.espressif.esptouch.android.databinding.ActivityEsptouchBinding;
+import uk.co.hsilighting.smart_config.EspTouchActivityAbs;
+import uk.co.hsilighting.smart_config.HSI_Smart_Config_App;
+import uk.co.hsilighting.smart_config.R;
+import uk.co.hsilighting.smart_config.databinding.ActivityEsptouchBinding;
 import com.espressif.iot.esptouch.EsptouchTask;
 import com.espressif.iot.esptouch.IEsptouchResult;
 import com.espressif.iot.esptouch.IEsptouchTask;
@@ -61,7 +61,7 @@ public class EspTouchActivity extends EspTouchActivityAbs {
             requestPermissions(permissions, REQUEST_PERMISSION);
         }
 
-        EspTouchApp.getInstance().observeBroadcast(this, broadcast -> {
+        HSI_Smart_Config_App.getInstance().observeBroadcast(this, broadcast -> {
             Log.d(TAG, "onCreate: Broadcast=" + broadcast);
             onWifiChanged();
         });

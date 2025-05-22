@@ -1,4 +1,4 @@
-package com.espressif.esptouch.android.v2;
+package uk.co.hsilighting.smart_config.v2;
 
 import android.Manifest;
 import android.content.Intent;
@@ -13,10 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
 
-import com.espressif.esptouch.android.EspTouchActivityAbs;
-import com.espressif.esptouch.android.EspTouchApp;
-import com.espressif.esptouch.android.R;
-import com.espressif.esptouch.android.databinding.ActivityEsptouch2Binding;
+import uk.co.hsilighting.smart_config.EspTouchActivityAbs;
+import uk.co.hsilighting.smart_config.HSI_Smart_Config_App;
+import uk.co.hsilighting.smart_config.R;
+import uk.co.hsilighting.smart_config.databinding.ActivityEsptouch2Binding;
 import com.espressif.iot.esptouch2.provision.EspProvisioner;
 import com.espressif.iot.esptouch2.provision.EspProvisioningRequest;
 import com.espressif.iot.esptouch2.provision.EspSyncListener;
@@ -69,7 +69,7 @@ public class EspTouch2Activity extends EspTouchActivityAbs {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        EspTouchApp.getInstance().observeBroadcast(this, action -> check());
+        HSI_Smart_Config_App.getInstance().observeBroadcast(this, action -> check());
 
         check();
     }

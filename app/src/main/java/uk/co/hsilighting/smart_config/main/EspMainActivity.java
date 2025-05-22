@@ -1,4 +1,4 @@
-package com.espressif.esptouch.android.main;
+package uk.co.hsilighting.smart_config.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.espressif.esptouch.android.R;
-import com.espressif.esptouch.android.v1.EspTouchActivity;
-import com.espressif.esptouch.android.v2.EspTouch2Activity;
+import uk.co.hsilighting.smart_config.R;
+import uk.co.hsilighting.smart_config.v1.EspTouchActivity;
+import uk.co.hsilighting.smart_config.v2.EspTouch2Activity;
 
 public class EspMainActivity extends AppCompatActivity {
     private static final String[] ITEMS = {

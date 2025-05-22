@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
-        android:name=".EspTouchApp"
+        android:name=".HSI_Smart_Config_App"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/app_icon"
@@ -29,17 +29,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.espressif.esptouch.android.v1.EspTouchActivity"
+            android:name="uk.co.hsilighting.smart_config.v1.EspTouchActivity"
             android:exported="true"
             android:label="@string/esptouch1_title"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.espressif.esptouch.android.v2.EspTouch2Activity"
+            android:name="uk.co.hsilighting.smart_config.v2.EspTouch2Activity"
             android:exported="true"
             android:label="@string/esptouch2_title"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.espressif.esptouch.android.v2.EspProvisioningActivity"
+            android:name="uk.co.hsilighting.smart_config.v2.EspProvisioningActivity"
             android:exported="false"
             android:label="@string/esptouch2_provisioning_title"
             android:screenOrientation="portrait" />

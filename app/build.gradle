@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdk 34
 
-    namespace "com.espressif.esptouch.android"
+    namespace "uk.co.hsilighting.smart_config"
     defaultConfig {
-        applicationId "com.espressif.esptouch.android"
+        applicationId 'uk.co.hsilighting.smart_config'
         minSdk 21
         targetSdk 34
         versionCode 31
