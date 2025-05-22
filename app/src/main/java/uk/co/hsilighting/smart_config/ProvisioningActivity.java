@@ -1,5 +1,6 @@
 package uk.co.hsilighting.smart_config;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.nsd.NsdServiceInfo;
@@ -103,11 +104,13 @@ public class ProvisioningActivity extends AppCompatActivity {
 
         mdnsDiscovery = new MdnsDiscovery();
         mdnsDiscovery.startDiscovery(getApplicationContext(), new MdnsDiscoveryCallback() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void ServiceDiscovered(NsdServiceInfo serviceInfo) {
                 runOnUiThread(() -> {
                     mStations.add(new HSI_Provision_Result(serviceInfo));
-                    mStationAdapter.notifyItemInserted(mStations.size() - 1);
+                    mStationAdapter.notifyDataSetChanged();
+                    //mStationAdapter.notifyItemInserted(mStations.size() - 1);
                 });
             }
         });
