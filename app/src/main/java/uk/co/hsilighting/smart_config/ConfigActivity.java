@@ -3,11 +3,16 @@ package uk.co.hsilighting.smart_config;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.webkit.JsPromptResult;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ConfigActivity extends AppCompatActivity {
@@ -22,10 +27,55 @@ public class ConfigActivity extends AppCompatActivity {
 
         // Enable JavaScript (optional)
         webView.getSettings().setJavaScriptEnabled(true);
-        // For Android 8.0 (API 26) and below
+
+        // Required for alert dialogs
+        webView.getSettings().setDomStorageEnabled(true);
 
         // Allow all content
         webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+            // Handle JavaScript alerts
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Alert")
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> result.confirm())
+                        .setCancelable(false)
+                        .create()
+                        .show();
+                return true;
+            }
+
+            // Handle JavaScript confirm dialogs
+            @Override
+            public boolean onJsConfirm(WebView view, String url, String message, JsResult result) {
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Confirm")
+                        .setMessage(message)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> result.confirm())
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> result.cancel())
+                        .create()
+                        .show();
+                return true;
+            }
+
+            // Handle JavaScript prompt dialogs
+            @Override
+            public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, JsPromptResult result) {
+                final EditText input = new EditText(view.getContext());
+                input.setText(defaultValue);
+
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle(message)
+                        .setView(input)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> result.confirm(input.getText().toString()))
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> result.cancel())
+                        .show();
+                return true;
+            }
+        });
 
         // Get the URL passed from the previous activity
         String IP = getIntent().getStringExtra("IP");
