@@ -110,6 +110,11 @@ public class ProvisioningActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     mStations.add(new HSI_Provision_Result(serviceInfo));
                     mStationAdapter.notifyDataSetChanged();
+
+                    if (mWillProvisioningCount > 0 && mStations.size() >= mWillProvisioningCount) {
+                        mProvisioner.stopProvisioning();
+                        mdnsDiscovery.stopDiscovery();
+                    }
                     //mStationAdapter.notifyItemInserted(mStations.size() - 1);
                 });
             }
@@ -241,15 +246,16 @@ public class ProvisioningActivity extends AppCompatActivity {
             String mac = result.bssid;
             String host = result.address.getHostAddress();
             Log.d(TAG, "ProvisionListener onResponse: " + mac + " " + host);
-            runOnUiThread(() -> {
-                mStations.add(new HSI_Provision_Result(result));
-                mStationAdapter.notifyItemInserted(mStations.size() - 1);
-
-                if (mWillProvisioningCount > 0 && mStations.size() >= mWillProvisioningCount) {
-                    mProvisioner.stopProvisioning();
-                    mdnsDiscovery.stopDiscovery();
-                }
-            });
+            // not adding this version since we will discover the device via mDNS anyway
+//            runOnUiThread(() -> {
+//                mStations.add(new HSI_Provision_Result(result));
+//                mStationAdapter.notifyItemInserted(mStations.size() - 1);
+//
+//                if (mWillProvisioningCount > 0 && mStations.size() >= mWillProvisioningCount) {
+//                    mProvisioner.stopProvisioning();
+//                    mdnsDiscovery.stopDiscovery();
+//                }
+//            });
         }
 
         @Override
